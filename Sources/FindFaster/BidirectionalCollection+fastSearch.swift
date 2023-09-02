@@ -7,12 +7,9 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
 
     public func fastSearch(for searchSequence: some Collection<Element>) -> AsyncStream<Index> {
         switch searchSequence.count {
-        case 0:
-            return AsyncStream { $0.finish() }
-        case 1:
-            return singleElementSearch(for: searchSequence[searchSequence.startIndex])
-        default:
-            return multiElementSearch(for: searchSequence)
+        case 0: AsyncStream { $0.finish() }
+        case 1: singleElementSearch(for: searchSequence[searchSequence.startIndex])
+        default: multiElementSearch(for: searchSequence)
         }
     }
 
