@@ -16,7 +16,7 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
     private func singleElementSearch(for element: Element) -> AsyncStream<Index> {
         AsyncStream { continuation in
             var currentIndex = startIndex
-            while currentIndex < endIndex {
+            while currentIndex < endIndex, !Task.isCancelled {
                 if self[currentIndex] == element {
                     continuation.yield(currentIndex)
                 }
@@ -39,7 +39,7 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
                 .reduce(into: [:]) { $0[$1.element] = searchSequence.count - $1.offset - 1 }
 
             var currentIndex = index(startIndex, offsetBy: searchSequence.count - 1)
-            while currentIndex < endIndex {
+            while currentIndex < endIndex, !Task.isCancelled {
                 let skip = skipTable[self[currentIndex]] ?? searchSequence.count
                 if skip == 0 {
                     let lowerBound = index(currentIndex, offsetBy: -searchSequence.count + 1)
