@@ -15,14 +15,19 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
 
     private func singleElementSearch(for element: Element) -> AsyncStream<Index> {
         AsyncStream { continuation in
-            var currentIndex = startIndex
-            while currentIndex < endIndex, !Task.isCancelled {
-                if self[currentIndex] == element {
-                    continuation.yield(currentIndex)
+            let task = Task {
+                var currentIndex = startIndex
+                while currentIndex < endIndex, !Task.isCancelled {
+                    if self[currentIndex] == element {
+                        continuation.yield(currentIndex)
+                    }
+                    currentIndex = index(after: currentIndex)
                 }
-                currentIndex = index(after: currentIndex)
+                continuation.finish()
             }
-            continuation.finish()
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
         }
     }
 
@@ -34,35 +39,41 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
                 return
             }
 
-            let skipTable: [Element: Int] = searchSequence
-                .enumerated()
-                .reduce(into: [:]) { $0[$1.element] = searchSequence.count - $1.offset - 1 }
+            let task = Task {
+                let skipTable: [Element: Int] = searchSequence
+                    .enumerated()
+                    .reduce(into: [:]) { $0[$1.element] = searchSequence.count - $1.offset - 1 }
 
-            var currentIndex = index(startIndex, offsetBy: searchSequence.count - 1)
-            while currentIndex < endIndex, !Task.isCancelled {
-                let skip = skipTable[self[currentIndex]] ?? searchSequence.count
-                if skip == 0 {
-                    let lowerBound = index(currentIndex, offsetBy: -searchSequence.count + 1)
-                    let upperBound = index(currentIndex, offsetBy: 1)
-                    if self[lowerBound..<upperBound].elementsEqual(searchSequence) {
-                        continuation.yield(lowerBound)
+                var currentIndex = index(startIndex, offsetBy: searchSequence.count - 1)
+                while currentIndex < endIndex, !Task.isCancelled {
+                    let skip = skipTable[self[currentIndex]] ?? searchSequence.count
+                    if skip == 0 {
+                        let lowerBound = index(currentIndex, offsetBy: -searchSequence.count + 1)
+                        let upperBound = index(currentIndex, offsetBy: 1)
+                        if self[lowerBound..<upperBound].elementsEqual(searchSequence) {
+                            continuation.yield(lowerBound)
+                        }
+                        guard let nextIndex = index(
+                            currentIndex,
+                            offsetBy: Swift.max(skip, 1),
+                            limitedBy: endIndex
+                        ) else { break }
+                        currentIndex = nextIndex
+                    } else {
+                        guard let nextIndex = index(
+                            currentIndex,
+                            offsetBy: skip,
+                            limitedBy: endIndex
+                        ) else { break }
+                        currentIndex = nextIndex
                     }
-                    guard let nextIndex = index(
-                        currentIndex,
-                        offsetBy: Swift.max(skip, 1),
-                        limitedBy: endIndex
-                    ) else { break }
-                    currentIndex = nextIndex
-                } else {
-                    guard let nextIndex = index(
-                        currentIndex,
-                        offsetBy: skip,
-                        limitedBy: endIndex
-                    ) else { break }
-                    currentIndex = nextIndex
                 }
+                continuation.finish()
             }
-            continuation.finish()
+
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
         }
     }
 }
