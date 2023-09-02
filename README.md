@@ -1,6 +1,8 @@
 # FindFaster
 
 ```swift
+import FindFaster
+
 let text = "Lorem ipsum dolor sit amet"
 let search = "or"
 
