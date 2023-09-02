@@ -5,7 +5,7 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
         singleElementSearch(for: element)
     }
 
-    public func fastSearch(for searchSequence: Self) -> AsyncStream<Index> {
+    public func fastSearch(for searchSequence: some Collection<Element>) -> AsyncStream<Index> {
         switch searchSequence.count {
         case 0:
             return AsyncStream { $0.finish() }
@@ -30,7 +30,7 @@ extension BidirectionalCollection where Element: Equatable, Element: Hashable {
     }
 
     /// Boyer–Moore algorithm
-    private func multiElementSearch(for searchSequence: Self) -> AsyncStream<Index> {
+    private func multiElementSearch(for searchSequence: some Collection<Element>) -> AsyncStream<Index> {
         AsyncStream { continuation in
             guard !searchSequence.isEmpty, searchSequence.count <= count else {
                 continuation.finish()
