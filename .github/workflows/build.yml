@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_15.0.app/Contents/Developer
+
+jobs:
+  build:
+    name: Build
+    runs-on: macOS-13
+    strategy:
+      matrix:
+        destination:
+          - "generic/platform=ios"
+          - "platform=macOS"
+#          - "generic/platform=xros"
+          - "generic/platform=tvos"
+          - "generic/platform=watchos"
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build platform ${{ matrix.destination }}
+        run: set -o pipefail && xcodebuild build -scheme FindFaster -destination "${{ matrix.destination }}" | xcpretty
