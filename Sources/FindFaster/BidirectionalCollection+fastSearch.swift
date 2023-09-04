@@ -1,10 +1,16 @@
 import Foundation
 
 public extension BidirectionalCollection where Element: Equatable, Element: Hashable {
+    /// Returns an `AsyncStream` delivering indices where the specified value appears in the collection.
+    /// - Parameter element: An element to search for in the collection.
+    /// - Returns: An `AsyncStream` delivering indices where `element` is found.
     func fastSearchStream(for element: Element) -> AsyncStream<Index> {
         fastSearchStream(for: [element])
     }
 
+    /// Returns an `AsyncStream` delivering indices where the specified sequence appears in the collection.
+    /// - Parameter searchSequence: A sequence of elements to search for in the collection.
+    /// - Returns: An `AsyncStream` delivering indices where `searchSequence` is found.
     func fastSearchStream(for searchSequence: some Collection<Element>) -> AsyncStream<Index> {
         AsyncStream { continuation in
             let task = Task {
@@ -17,6 +23,11 @@ public extension BidirectionalCollection where Element: Equatable, Element: Hash
         }
     }
 
+    /// Returns the indices where the specified value appears in the collection.
+    /// - Parameters:
+    ///   - element: An element to search for in the collection.
+    ///   - onSearchResult: An optional closure that is called when a matching index is found.
+    /// - Returns: The indices where `element` is found. If `element` is not found in the collection, returns an empty array.
     @discardableResult func fastSearch(
         for element: Element,
         onSearchResult: ((Index) -> Void)? = nil
@@ -24,6 +35,11 @@ public extension BidirectionalCollection where Element: Equatable, Element: Hash
         fastSearch(for: [element], onSearchResult: onSearchResult)
     }
 
+    /// Returns the indices where the specified sequence appears in the collection.
+    /// - Parameters:
+    ///   - searchSequence: A sequence of elements to search for in the collection.
+    ///   - onSearchResult: An optional closure that is called when a matching index is found.
+    /// - Returns: The indices where `searchSequence` is found. If `searchSequence` is not found in the collection, returns an empty array.
     @discardableResult func fastSearch(
         for searchSequence: some Collection<Element>,
         onSearchResult: ((Index) -> Void)? = nil
