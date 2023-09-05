@@ -17,5 +17,9 @@ jobs:
     runs-on: macOS-13
     steps:
       - uses: actions/checkout@v3
+      - name: Install xcbeautify
+        run: |
+          brew update
+          brew install xcbeautify
       - name: Test
-        run: set -o pipefail && xcodebuild test -scheme FindFaster -destination "platform=macOS" | xcpretty
+        run: set -o pipefail && xcodebuild test -scheme FindFaster -destination "platform=macOS" | xcbeautify --renderer github-actions
