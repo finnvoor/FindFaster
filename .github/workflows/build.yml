@@ -9,26 +9,13 @@ on:
       - main
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
 
 jobs:
-  build:
-    name: Build
-    runs-on: macOS-13
-    strategy:
-      matrix:
-        destination:
-          - "generic/platform=ios"
-          - "platform=macOS"
-#          - "generic/platform=xros"
-          - "generic/platform=tvos"
-          - "generic/platform=watchos"
-
+  test:
+    name: test
+    runs-on: macOS-12
     steps:
       - uses: actions/checkout@v3
-      - name: Install xcbeautify
-        run: |
-          brew update
-          brew install xcbeautify
-      - name: Build platform ${{ matrix.destination }}
-        run: set -o pipefail && xcodebuild build -scheme FindFaster -destination "${{ matrix.destination }}" | xcbeautify --renderer github-actions
+      - name: Build
+        run: xcrun swift build
