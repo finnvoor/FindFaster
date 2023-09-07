@@ -45,9 +45,9 @@ public extension BidirectionalCollection where Element: Equatable, Element: Hash
         onSearchResult: ((Index) -> Void)? = nil
     ) -> [Index] {
         switch searchSequence.count {
-        case 0: []
-        case 1: naiveSingleElementSearch(for: searchSequence.first!, onSearchResult: onSearchResult)
-        default: boyerMooreMultiElementSearch(for: searchSequence, onSearchResult: onSearchResult)
+        case 0: return []
+        case 1: return naiveSingleElementSearch(for: searchSequence.first!, onSearchResult: onSearchResult)
+        default: return boyerMooreMultiElementSearch(for: searchSequence, onSearchResult: onSearchResult)
         }
     }
 }
