@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -32,3 +32,14 @@ jobs:
           brew install xcbeautify
       - name: Build platform ${{ matrix.destination }}
         run: set -o pipefail && xcodebuild build -scheme FindFaster -destination "${{ matrix.destination }}" | xcbeautify --renderer github-actions
+  test:
+    name: Test
+    runs-on: macOS-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install xcbeautify
+        run: |
+          brew update
+          brew install xcbeautify
+      - name: Test
+        run: set -o pipefail && xcodebuild test -scheme FindFaster -destination "platform=macOS" | xcbeautify --renderer github-actions
